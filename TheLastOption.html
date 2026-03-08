@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Last Option | Your Final Craving Destination</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Poppins:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Configuration for Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#0a0a0a', 800: '#171717', 700: '#222222' },
+                        gold: { DEFAULT: '#F59E0B', light: '#FBBF24', dark: '#D97706' },
+                        accent: '#E11D48', 
+                        cream: '#FAFAF9'
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Poppins', '"Noto Sans Devanagari"', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'blob': 'blob 7s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #FAFAF9;
+            overflow-x: hidden;
+        }
+        
+        /* Modern Glowing Background Orbs */
+        .bg-shapes {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; background: #050505;
+        }
+        .bg-shape-1 {
+            position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%; filter: blur(60px); animation: blob 10s infinite alternate;
+        }
+        .bg-shape-2 {
+            position: absolute; bottom: -20%; right: -10%; width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(225,29,72,0.06) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%; filter: blur(80px); animation: blob 12s infinite alternate-reverse;
+        }
+
+        /* Upgraded Glassmorphism */
+        .glass-nav {
+            background: rgba(5, 5, 5, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-card {
+            background: linear-gradient(145deg, rgba(30, 30, 30, 0.6) 0%, rgba(15, 15, 15, 0.8) 100%);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-top: 1px solid rgba(255, 255, 255, 0.08); /* Highlight edge */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex; flex-direction: column;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 25px 50px rgba(245, 158, 11, 0.1);
+        }
+
+        /* Unified Modern List Items */
+        .item-row { 
+            transition: all 0.3s ease; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 1rem 0.5rem;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .item-row:last-child { border-bottom: none; }
+        .item-row:hover {
+            background: rgba(255, 255, 255, 0.04); 
+            border-radius: 12px; 
+            transform: translateX(4px);
+            border-bottom-color: transparent;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            margin: 0 -0.5rem; /* Compensate for padding to keep image aligned */
+        }
+
+        /* Improved Food Thumbnails */
+        .food-thumb {
+            width: 75px; height: 75px; object-fit: cover; border-radius: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.05); 
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            transition: all 0.4s ease;
+            flex-shrink: 0;
+        }
+        .item-row:hover .food-thumb { 
+            transform: scale(1.08) rotate(2deg); 
+            border-color: rgba(245, 158, 11, 0.5); 
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Modern Plus Button */
+        .btn-add {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(245, 158, 11, 0.1); color: #F59E0B;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-add:hover {
+            background: #F59E0B; color: #0a0a0a;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Tag Styling */
+        .tag-pill {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.35rem 0.75rem; border-radius: 9999px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75rem; font-weight: 700; color: #FAFAF9;
+            transition: all 0.2s ease;
+        }
+        .tag-pill:hover { background: rgba(245, 158, 11, 0.15); border-color: #F59E0B; color: #F59E0B; }
+
+        .delivery-badge { box-shadow: 0 0 25px rgba(225, 29, 72, 0.3); }
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.7s cubic-bezier(0.25, 1, 0.5, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #F59E0B; }
+        
+        /* Language Toggle Classes */
+        .hindi-text { display: none; }
+        body.lang-hi .hindi-text { display: inline-block; }
+        body.lang-hi .english-text { display: none; }
+        body.lang-hi [data-en] { font-family: 'Noto Sans Devanagari', sans-serif; }
+    </style>
+</head>
+<body class="font-sans antialiased text-cream relative pb-24 selection:bg-gold selection:text-dark-900">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[60] bg-gold text-dark-900 px-6 py-3 rounded-full font-bold shadow-[0_10px_30px_rgba(245,158,11,0.4)] transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] flex items-center gap-2">
+        <i class="fas fa-check-circle text-lg"></i> <span id="toastMsg" data-en="Item added to cart!" data-hi="आइटम कार्ट में जुड़ गया!">Item added to cart!</span>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="bg-shapes">
+        <div class="bg-shape-1"></div><div class="bg-shape-2"></div>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/916375965153?text=Hi%20The%20Last%20Option!%20I%20would%20like%20to%20place%20an%20order." target="_blank" rel="noopener noreferrer" 
+       class="fixed bottom-24 right-6 z-40 bg-gradient-to-tr from-[#128C7E] to-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl shadow-[0_10px_25px_rgba(37,211,102,0.4)] hover:scale-110 hover:-translate-y-1 transition-all duration-300 border border-white/20">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Sticky Navigation -->
+    <nav class="fixed w-full z-40 glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/30 to-gold/5 flex items-center justify-center border border-gold/40 group-hover:scale-105 transition-transform shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                        <i class="fas fa-mug-hot text-gold text-xl"></i>
+                    </div>
+                    <span class="font-serif text-2xl font-extrabold tracking-wide text-cream">The Last <span class="text-gold">Option</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-6 lg:space-x-8 items-center">
+                    <a href="#home" class="text-gray-300 hover:text-gold transition-colors font-medium text-sm tracking-widest uppercase" data-en="Home" data-hi="होम">Home</a>
+                    <a href="#menu" class="text-gray-300 hover:text-gold transition-colors font-medium text-sm tracking-widest uppercase" data-en="Menu" data-hi="मेन्यू">Menu</a>
+                    <a href="#offers" class="text-accent hover:text-red-400 transition-colors font-bold text-sm tracking-widest uppercase flex items-center gap-1 hover:scale-105">
+                        <i class="fas fa-fire"></i> <span data-en="Offers" data-hi="ऑफ़र्स">Offers</span>
+                    </a>
+                    
+                    <!-- Language Toggle -->
+                    <button onclick="toggleLanguage()" class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-cream transition-all font-medium flex items-center gap-2 hover:shadow-lg backdrop-blur-md">
+                        <i class="fas fa-language text-gold"></i>
+                        <span class="english-text tracking-wide">हिंदी</span>
+                        <span class="hindi-text tracking-wide">English</span>
+                    </button>
+
+                    <button onclick="openCart()" class="px-6 py-2.5 rounded-xl bg-gold text-dark-900 font-bold hover:bg-gold-light hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all flex items-center gap-2 hover:-translate-y-0.5">
+                        <i class="fas fa-shopping-cart"></i> <span data-en="Cart" data-hi="कार्ट">Cart</span>
+                    </button>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-3">
+                    <button onclick="toggleLanguage()" class="p-2.5 bg-white/5 rounded-xl border border-white/10 text-cream text-sm font-bold shadow-lg">
+                        <i class="fas fa-language text-gold mr-1"></i>
+                        <span class="english-text">अ</span>
+                        <span class="hindi-text">A</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="text-cream hover:text-gold focus:outline-none p-2 bg-transparent rounded-lg">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-900/95 backdrop-blur-2xl border-b border-white/10 absolute w-full left-0 top-20 shadow-2xl origin-top transition-all">
+            <div class="px-5 pt-4 pb-8 space-y-3">
+                <a href="#home" class="block px-5 py-3.5 text-lg font-medium text-cream hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-colors">
+                    <i class="fas fa-home w-6 text-gray-400"></i> <span data-en="Home" data-hi="होम">Home</span>
+                </a>
+                <a href="#menu" class="block px-5 py-3.5 text-lg font-medium text-cream hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-colors">
+                    <i class="fas fa-utensils w-6 text-gray-400"></i> <span data-en="Menu" data-hi="मेन्यू">Menu</span>
+                </a>
+                <a href="#offers" class="block px-5 py-3.5 text-lg font-bold text-accent bg-accent/5 rounded-xl border border-accent/20">
+                    <i class="fas fa-fire w-6"></i> <span data-en="Special Offers" data-hi="स्पेशल ऑफ़र्स">Special Offers</span>
+                </a>
+                <button onclick="openCart(); document.getElementById('mobile-menu').classList.add('hidden');" class="w-full mt-6 px-5 py-4 text-lg font-bold text-dark-900 bg-gold rounded-xl shadow-[0_10px_20px_rgba(245,158,11,0.3)] flex justify-center items-center gap-2">
+                    <i class="fas fa-shopping-basket"></i> <span data-en="View Cart" data-hi="कार्ट देखें">View Cart</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-30 mix-blend-overlay">
+            <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1920&q=80" alt="Cafe" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-b from-dark-900 via-transparent to-dark-900"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-10">
+            <div class="reveal inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-accent/10 border border-accent/30 text-accent font-bold mb-8 text-sm md:text-base delivery-badge backdrop-blur-md">
+                <i class="fas fa-shipping-fast text-lg"></i> <span data-en="30 Minutes Superfast Delivery!" data-hi="30 मिनट में सुपरफास्ट डिलीवरी!">30 Minutes Superfast Delivery!</span>
+            </div>
+
+            <div class="relative inline-block">
+                <h1 class="reveal font-serif text-6xl md:text-8xl lg:text-9xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#FBBF24] via-[#F59E0B] to-[#D97706] drop-shadow-[0_0_30px_rgba(245,158,11,0.3)] leading-tight tracking-tight" data-en="The Last Option" data-hi="द लास्ट ऑप्शन">
+                    The Last Option
+                </h1>
+            </div>
+            <p class="reveal text-lg md:text-2xl text-gray-400 font-light mb-12 tracking-widest uppercase delay-100" data-en="Your Final Craving Destination" data-hi="आपकी क्रेविंग का आखिरी ठिकाना">
+                Your Final Craving Destination
+            </p>
+            
+            <div class="reveal flex justify-center delay-200 w-full px-4">
+                <a href="#menu" class="w-full sm:w-auto px-10 py-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 text-cream font-bold text-lg hover:bg-white/10 hover:border-gold/50 hover:text-gold hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] transition-all duration-300 flex items-center justify-center gap-3">
+                    <span data-en="Explore Menu" data-hi="मेन्यू देखें">Explore Menu</span> <i class="fas fa-arrow-right text-sm"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10 animate-float">
+            <a href="#menu" class="flex flex-col items-center text-gray-500 hover:text-gold transition-colors">
+                <span class="text-[10px] uppercase tracking-[0.2em] mb-3 font-bold opacity-70" data-en="Scroll" data-hi="नीचे जाएँ">Scroll</span>
+                <div class="w-8 h-12 rounded-full border-2 border-current flex justify-center p-1">
+                    <div class="w-1.5 h-3 bg-current rounded-full animate-bounce"></div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-24 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20 reveal">
+                <span class="text-gold uppercase tracking-[0.2em] font-bold text-xs mb-3 block" data-en="Premium Taste" data-hi="प्रीमियम स्वाद">Premium Taste</span>
+                <h2 class="font-serif text-5xl md:text-7xl font-extrabold text-cream mb-6" data-en="Our Menu" data-hi="हमारा मेन्यू">Our <span class="text-gold">Menu</span></h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto rounded-full opacity-50"></div>
+            </div>
+
+            <!-- Modern Masonry-style Grid Setup -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+                
+                <!-- PIZZA CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-orange-500/5 flex items-center justify-center border border-orange-500/30 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+                            <i class="fas fa-pizza-slice text-xl text-orange-400"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Pizza" data-hi="पिज़्ज़ा">Pizza</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="OTC Pizza">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="OTC Pizza" data-hi="ओटीसी पिज़्ज़ा">OTC Pizza</h4>
+                                <p class="text-[11px] text-gray-400 line-clamp-1 tracking-wide" data-en="Onion, Tomato, Capsicum" data-hi="प्याज, टमाटर, शिमला मिर्च">Onion, Tomato, Capsicum</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹160</span>
+                                <button onclick="addToCart('pizza_otc', 'OTC Pizza', 'ओटीसी पिज़्ज़ा', 160)" class="btn-add">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1604381538336-b54ce25a8df8?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Paneer Pizza">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="Paneer Pizza" data-hi="पनीर पिज़्ज़ा">Paneer Pizza</h4>
+                                <p class="text-[11px] text-gray-400 line-clamp-1 tracking-wide" data-en="Loaded with fresh paneer" data-hi="ताज़ा पनीर से भरपूर">Loaded with fresh paneer</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹190</span>
+                                <button onclick="addToCart('pizza_paneer', 'Paneer Pizza', 'पनीर पिज़्ज़ा', 190)" class="btn-add">
+                                    <i class="fas fa-plus text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BURGERS & MOMOS CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 100ms;">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/30 to-red-500/5 flex items-center justify-center border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
+                            <i class="fas fa-hamburger text-xl text-red-400"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Burgers & Momos" data-hi="बर्गर और मोमोज़">Burgers & Momos</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Veg Burger">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Burger" data-hi="वेज बर्गर">Veg Burger</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹40</span>
+                                <button onclick="addToCart('burger_veg', 'Veg Burger', 'वेज बर्गर', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Cheese Burger">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Cheese Burger" data-hi="चीज़ बर्गर">Cheese Burger</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹60</span>
+                                <button onclick="addToCart('burger_cheese', 'Cheese Burger', 'चीज़ बर्गर', 60)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        
+                        <!-- Separator -->
+                        <div class="w-full h-px bg-white/5 my-2"></div>
+                        
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Steam Momos">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Steam Momos" data-hi="वेज स्टीम मोमोज़">Veg Steam Momos</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹40</span>
+                                <button onclick="addToCart('momos_steam', 'Veg Steam Momos', 'वेज स्टीम मोमोज़', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://salasdaily.com/cdn/shop/products/chicken_fried_momos_1200x1200.webp?v=1667534046" class="food-thumb" alt="Fried Momos">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Fried Momos" data-hi="वेज फ्राइड मोमोज़">Veg Fried Momos</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹60</span>
+                                <button onclick="addToCart('momos_fried', 'Veg Fried Momos', 'वेज फ्राइड मोमोज़', 60)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SANDWICH CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 200ms;">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/30 to-yellow-500/5 flex items-center justify-center border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                            <i class="fas fa-bread-slice text-xl text-yellow-400"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Sandwich" data-hi="सैंडविच">Sandwich</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Veg Sandwich">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Sandwich" data-hi="वेज सैंडविच">Veg Sandwich</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹40</span>
+                                <button onclick="addToCart('sand_veg', 'Veg Sandwich', 'वेज सैंडविच', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1619096252214-ef06c45683e3?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Grilled Sandwich">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Grilled Sandwich" data-hi="ग्रिल्ड सैंडविच">Grilled Sandwich</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹50</span>
+                                <button onclick="addToCart('sand_grill', 'Grilled Sandwich', 'ग्रिल्ड सैंडविच', 50)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://cravinghomecooked.com/wp-content/uploads/2023/07/grilled-cheese-1-13.jpg.webp" class="food-thumb" alt="Cheese Grill">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="Cheese Grill" data-hi="चीज़ ग्रिल">Cheese Grill</h4>
+                                <p class="text-[11px] text-accent font-semibold tracking-wide uppercase" data-en="Loaded with Cheese!" data-hi="चीज़ से भरपूर!">Loaded with Cheese!</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹70</span>
+                                <button onclick="addToCart('sand_cheese', 'Cheese Grill', 'चीज़ ग्रिल सैंडविच', 70)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COFFEE & TEA CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-700/30 to-amber-700/5 flex items-center justify-center border border-amber-700/30 shadow-[0_0_15px_rgba(180,83,9,0.1)]">
+                            <i class="fas fa-coffee text-xl text-amber-500"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Coffee & Tea" data-hi="कॉफ़ी और चाय">Coffee & Tea</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row">
+                            <img src="https://images.indianexpress.com/2021/01/coffee1200_getty.jpg?w=1200" class="food-thumb" alt="Hot Coffee">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Hot Coffee" data-hi="हॉट कॉफ़ी">Hot Coffee</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹20</span>
+                                <button onclick="addToCart('coffee_hot', 'Hot Coffee', 'हॉट कॉफ़ी', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="item-row border-b border-white/5 pb-4 mb-2">
+                            <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Cold Coffee">
+                            <div class="flex-grow w-full">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-2" data-en="Cold Coffee" data-hi="कोल्ड कॉफ़ी">Cold Coffee</h4>
+                                <div class="flex gap-2 flex-wrap">
+                                    <button onclick="addToCart('cc_s', 'Cold Coffee (S)', 'कोल्ड कॉफ़ी (S)', 40)" class="tag-pill">S ₹40 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('cc_m', 'Cold Coffee (M)', 'कोल्ड कॉफ़ी (M)', 50)" class="tag-pill">M ₹50 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('cc_l', 'Cold Coffee (L)', 'कोल्ड कॉफ़ी (L)', 70)" class="tag-pill">L ₹70 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="item-row">
+                            <img src="https://media.istockphoto.com/id/1128172520/photo/tea-served-in-a-clay-cup-with-background.jpg?s=612x612&w=0&k=20&c=4omaTXOGBUsc6-BWLJlz26E22c5PkV7Yh-v0Mf-xHQw=" class="food-thumb" alt="Classic Chai">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Classic Chai" data-hi="क्लासिक चाय">Classic Chai</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹10</span>
+                                <button onclick="addToCart('chai_classic', 'Classic Chai', 'क्लासिक चाय', 10)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="item-row">
+                            <img src="https://5.imimg.com/data5/SELLER/Default/2024/2/393896129/JT/XF/EH/19170599/clay-kulhad-for-tandoori-tea.jpg" class="food-thumb" alt="Tandoori Chai">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="Tandoori Chai" data-hi="तंदूरी चाय">Tandoori Chai</h4>
+                                <p class="text-[11px] text-orange-400 font-bold uppercase tracking-wide" data-en="Kulhad Special" data-hi="कुल्हड़ स्पेशल">Kulhad Special</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹20</span>
+                                <button onclick="addToCart('chai_tandoori', 'Tandoori Chai', 'तंदूरी चाय', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PETEEZ CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 100ms;">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600/30 to-orange-600/5 flex items-center justify-center border border-orange-600/30 shadow-[0_0_15px_rgba(234,88,12,0.1)]">
+                            <i class="fas fa-cookie text-xl text-orange-400"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Peteez (Patties)" data-hi="पेटीज़">Peteez (Patties)</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row">
+                            <img src="https://b.zmtcdn.com/data/pictures/7/20559867/55cdc5c5f4b9529af1fb4c132ded6cbc.jpg" class="food-thumb" alt="Saada Peteez">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Saada Peteez" data-hi="सादा पेटीज़">Saada Peteez</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹20</span>
+                                <button onclick="addToCart('peteez_saada', 'Saada Peteez', 'सादा पेटीज़', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWb_8269mGBQH5G9IL7Sozz_zhtR46sWHwHg&s" class="food-thumb" alt="Paneer Peteez">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Tandoori Paneer" data-hi="तंदूरी पनीर पेटीज़">Tandoori Paneer</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹35</span>
+                                <button onclick="addToCart('peteez_paneer', 'Tandoori Paneer Peteez', 'तंदूरी पनीर पेटीज़', 35)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                        <div class="item-row relative overflow-hidden">
+                            <div class="absolute -left-8 top-2 bg-accent text-white text-[9px] font-black px-8 py-0.5 -rotate-45 shadow-lg" data-en="BEST" data-hi="बेस्ट">BEST</div>
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWb_8269mGBQH5G9IL7Sozz_zhtR46sWHwHg&s" class="food-thumb ml-2" alt="Cheese Peteez">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Tandoori Cheese" data-hi="तंदूरी चीज़ पेटीज़">Tandoori Cheese</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹45</span>
+                                <button onclick="addToCart('peteez_cheese', 'Tandoori Cheese Peteez', 'तंदूरी चीज़ पेटीज़', 45)" class="btn-add bg-gold text-dark-900 border-none shadow-[0_0_10px_rgba(245,158,11,0.5)]"><i class="fas fa-plus text-sm"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SHAKES CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 200ms;">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500/30 to-pink-500/5 flex items-center justify-center border border-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.1)]">
+                            <i class="fas fa-glass-whiskey text-xl text-pink-400"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Premium Shakes" data-hi="प्रीमियम शेक्स">Premium Shakes</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row border-b border-white/5 pb-4 mb-2">
+                            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Classic Shakes">
+                            <div class="flex-grow w-full">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-2" data-en="Classic Shakes" data-hi="क्लासिक शेक्स">Classic Shakes</h4>
+                                <div class="flex gap-2 flex-wrap">
+                                    <button onclick="addToCart('shake_choc', 'Chocolate Shake', 'चॉकलेट शेक', 60)" class="tag-pill">Choc ₹60 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_oreo', 'Oreo Shake', 'ओरियो शेक', 70)" class="tag-pill">Oreo ₹70 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Fruit Shakes">
+                            <div class="flex-grow w-full">
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-2" data-en="Fruit Shakes" data-hi="फ्रूट शेक्स">Fruit Shakes</h4>
+                                <div class="flex gap-2 flex-wrap">
+                                    <button onclick="addToCart('shake_straw', 'Strawberry Shake', 'स्ट्रॉबेरी शेक', 60)" class="tag-pill">Straw ₹60 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_banana', 'Banana Shake', 'बनाना शेक', 50)" class="tag-pill">Banana ₹50 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers Section -->
+    <section id="offers" class="py-20 relative z-10 overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
+            <div class="bg-gradient-to-br from-red-900/30 via-dark-900 to-gold-dark/20 backdrop-blur-2xl border border-accent/20 rounded-[2.5rem] p-8 md:p-14 relative overflow-hidden shadow-[0_20px_50px_rgba(225,29,72,0.1)]">
+                <div class="absolute -top-32 -right-32 w-80 h-80 bg-accent rounded-full blur-[120px] opacity-20"></div>
+                
+                <div class="relative z-10 text-center">
+                    <span class="bg-accent/10 text-accent font-black px-6 py-2 rounded-full text-xs uppercase tracking-[0.2em] border border-accent/30 mb-8 inline-block shadow-[0_0_15px_rgba(225,29,72,0.2)]" data-en="Limited Time Deals" data-hi="सीमित समय के ऑफ़र">Limited Time Deals</span>
+                    <h2 class="font-serif text-5xl md:text-6xl font-extrabold text-cream mb-16" data-en="Special Offers" data-hi="स्पेशल ऑफ़र्स">Special <span class="text-gold">Offers</span></h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                        <div class="bg-white/5 backdrop-blur-md rounded-3xl p-8 md:p-10 border border-white/10 hover:border-gold/50 transition-all hover:-translate-y-2 group shadow-xl">
+                            <div class="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-cloud-moon text-3xl text-gold"></i>
+                            </div>
+                            <h3 class="text-3xl font-serif text-cream font-bold" data-en="Evening Special" data-hi="इवनिंग स्पेशल">Evening Special</h3>
+                            <p class="text-gray-400 mt-3 mb-6 font-medium tracking-wide"><i class="far fa-clock mr-1 text-gold"></i> 7 PM – 9 PM</p>
+                            <div class="bg-gradient-to-r from-gold/20 to-gold/5 text-gold text-lg md:text-xl font-black py-4 px-2 rounded-2xl border border-gold/20 shadow-inner uppercase tracking-wide" data-en="FREE Complimentary Hukkah" data-hi="मुफ़्त कॉम्प्लिमेंट्री हुक्का">
+                                FREE Complimentary Hukkah
+                            </div>
+                        </div>
+
+                        <div class="bg-white/5 backdrop-blur-md rounded-3xl p-8 md:p-10 border border-white/10 hover:border-accent/50 transition-all hover:-translate-y-2 group shadow-xl">
+                            <div class="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:translate-x-2 transition-transform">
+                                <i class="fas fa-motorcycle text-3xl text-accent"></i>
+                            </div>
+                            <h3 class="text-3xl font-serif text-cream font-bold" data-en="Free Home Delivery" data-hi="फ्री होम डिलीवरी">Free Home Delivery</h3>
+                            <p class="text-gray-400 mt-3 mb-6 font-medium tracking-wide" data-en="On all orders above ₹150" data-hi="₹150 से ऊपर के सभी ऑर्डर पर">On all orders above <strong class="text-cream text-lg">₹150</strong></p>
+                            <div class="bg-gradient-to-r from-accent/20 to-accent/5 text-red-400 text-lg md:text-xl font-black py-4 px-2 rounded-2xl border border-accent/20 shadow-inner uppercase tracking-wide" data-en="Guaranteed 30 Mins Delivery!" data-hi="30 मिनट में गारंटीड डिलीवरी!">
+                                Guaranteed 30 Mins Delivery!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer id="contact" class="bg-dark-900 pt-20 pb-10 border-t border-white/5 relative z-10 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                <div class="space-y-5 text-center md:text-left">
+                    <h2 class="font-serif text-4xl font-extrabold text-cream" data-en="The Last Option" data-hi="द लास्ट ऑप्शन">The Last <span class="text-gold">Option</span></h2>
+                    <p class="text-gold italic font-serif text-xl" data-en='"Where Every Craving Ends"' data-hi='"जहाँ हर क्रेविंग खत्म होती है"'>"Where Every Craving Ends"</p>
+                    
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-5 mt-6 inline-block md:block shadow-inner">
+                        <p class="text-xs text-gray-500 uppercase tracking-[0.2em] font-bold mb-2" data-en="Founder & Owner" data-hi="संस्थापक और मालिक">Founder & Owner</p>
+                        <p class="text-cream text-xl font-bold flex justify-center md:justify-start items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-gold/20 flex items-center justify-center"><i class="fas fa-user-tie text-gold text-sm"></i></span>
+                            Rahul Shrivastav
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-6 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-cream mb-6 tracking-wide" data-en="Contact Us" data-hi="संपर्क करें">Contact Us</h3>
+                    <ul class="space-y-6 text-gray-300 inline-block text-left w-full">
+                        <li>
+                            <a href="https://wa.me/916375965153" target="_blank" class="flex items-center group cursor-pointer w-full bg-white/5 p-4 rounded-2xl hover:bg-white/10 border border-transparent hover:border-white/10 transition-all">
+                                <div class="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mr-4 group-hover:bg-gold transition-colors shadow-inner">
+                                    <i class="fas fa-phone-alt text-gold group-hover:text-dark-900 text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-xl text-cream tracking-wider">+91 63759 65153</p>
+                                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-1" data-en="Tap to Call / Order" data-hi="कॉल / ऑर्डर के लिए टैप करें">Tap to Call / Order</p>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="flex items-center px-4">
+                            <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mr-4">
+                                <i class="fas fa-clock text-gold text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg text-cream tracking-wide" data-en="Open Daily" data-hi="रोज खुला है">Open Daily</p>
+                                <p class="text-sm text-gray-400 mt-0.5" data-en="Fast Delivery in 30 Mins" data-hi="30 मिनट में तेज डिलीवरी">Fast Delivery in 30 Mins</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="h-full min-h-[250px] rounded-3xl overflow-hidden border border-white/10 relative group cursor-pointer block shadow-2xl" onclick="window.open('https://maps.app.goo.gl/nDRoRcULDL9HUnfX8', '_blank')">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3559.877283914113!2d75.7788893150433!3d26.912433683128415!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db4eb40232467%3A0x66c8236e788bc57a!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1683112345678!5m2!1sen!2sin" 
+                        width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg) contrast(1.2);" 
+                        allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+                        class="grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none scale-105 group-hover:scale-100">
+                    </iframe>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    <div class="absolute bottom-6 left-0 right-0 flex justify-center z-10">
+                        <span class="bg-gold text-dark-900 font-bold px-6 py-3 rounded-full shadow-[0_10px_20px_rgba(245,158,11,0.4)] transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt"></i> <span data-en="Get Directions" data-hi="रास्ता देखें">Get Directions</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-8 border-t border-white/5 text-gray-500 font-medium text-sm tracking-wide">
+                <p data-en="© 2026 The Last Option. Owner: Rahul Shrivastav." data-hi="© 2026 द लास्ट ऑप्शन. मालिक: राहुल श्रीवास्तव.">© 2026 The Last Option. Owner: Rahul Shrivastav.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================== -->
+    <!-- FLOATING CART & MODAL UI -->
+    <!-- ============================================== -->
+
+    <!-- Floating Cart Button -->
+    <div id="floatingCart" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 hidden transition-all duration-500 hover:-translate-y-1">
+        <button onclick="openCart()" class="bg-gradient-to-r from-gold to-gold-light text-dark-900 px-6 py-3.5 rounded-full font-black shadow-[0_10px_30px_rgba(245,158,11,0.5)] flex items-center gap-4 border border-white/20">
+            <div class="relative flex items-center justify-center">
+                <i class="fas fa-shopping-bag text-xl"></i>
+                <span id="cartBadgeCount" class="absolute -top-2.5 -right-3.5 bg-accent text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full shadow-md font-bold border border-white/20">0</span>
+            </div>
+            <span id="floatingCartTotal" class="text-lg tracking-wide">₹0</span>
+            <div class="w-px h-5 bg-dark-900/20"></div>
+            <span class="uppercase tracking-widest text-xs" data-en="View Cart" data-hi="कार्ट देखें">View Cart</span>
+        </button>
+    </div>
+
+    <!-- Cart Modal Box -->
+    <div id="cartModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-dark-900 border border-white/10 rounded-3xl w-full max-w-md mx-4 overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]" id="cartModalContent">
+            
+            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <h3 class="text-2xl font-serif font-bold text-cream flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold">
+                        <i class="fas fa-shopping-cart text-lg"></i>
+                    </div>
+                    <span data-en="Your Order" data-hi="आपका ऑर्डर">Your Order</span>
+                </h3>
+                <button onclick="closeCart()" class="text-gray-400 hover:text-accent transition-colors text-xl w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Cart Items List -->
+            <div class="p-5 overflow-y-auto flex-grow space-y-3 custom-scrollbar" id="cartItemsContainer">
+                <!-- Items injected via JS -->
+            </div>
+            
+            <!-- Checkout Footer -->
+            <div class="p-6 bg-dark-800 border-t border-white/5">
+                <div class="flex justify-between items-center mb-6 px-2">
+                    <span class="text-gray-400 font-bold uppercase tracking-widest text-xs" data-en="Total Amount" data-hi="कुल राशि">Total Amount</span>
+                    <span class="text-gold font-black text-3xl drop-shadow-md" id="cartModalTotal">₹0</span>
+                </div>
+                <button onclick="checkoutViaWhatsApp()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-lg hover:shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
+                    <i class="fab fa-whatsapp text-2xl"></i> <span data-en="Send Order on WhatsApp" data-hi="व्हाट्सएप पर ऑर्डर भेजें">Send Order on WhatsApp</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- JavaScript for Interactions & Shopping Cart -->
+    <script>
+        // --- Language Toggle Logic ---
+        function toggleLanguage() {
+            document.body.classList.toggle('lang-hi');
+            updateCartUI(); // Refresh cart names based on language
+            
+            // Translate all elements with data-en/data-hi
+            const isHindi = document.body.classList.contains('lang-hi');
+            const elements = document.querySelectorAll('[data-en]');
+            
+            elements.forEach(el => {
+                if (isHindi && el.hasAttribute('data-hi')) {
+                    el.textContent = el.getAttribute('data-hi');
+                } else {
+                    el.textContent = el.getAttribute('data-en');
+                }
+            });
+        }
+
+        // --- Shopping Cart Logic ---
+        let cart = {};
+
+        function addToCart(id, nameEn, nameHi, price) {
+            if(cart[id]) {
+                cart[id].quantity += 1;
+            } else {
+                cart[id] = { nameEn, nameHi, price, quantity: 1 };
+            }
+            updateCartUI();
+            
+            const isHindi = document.body.classList.contains('lang-hi');
+            showToast(isHindi ? `कार्ट में ${nameHi} जोड़ा गया!` : `Added ${nameEn} to cart!`);
+        }
+
+        function updateQuantity(id, change) {
+            if(cart[id]) {
+                cart[id].quantity += change;
+                if(cart[id].quantity <= 0) {
+                    delete cart[id];
+                }
+                updateCartUI();
+            }
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cartItemsContainer');
+            const floatingTotal = document.getElementById('floatingCartTotal');
+            const modalTotal = document.getElementById('cartModalTotal');
+            const badgeCount = document.getElementById('cartBadgeCount');
+            const floatingCart = document.getElementById('floatingCart');
+            const isHindi = document.body.classList.contains('lang-hi');
+
+            let total = 0;
+            let itemCount = 0;
+            container.innerHTML = '';
+
+            for(const id in cart) {
+                const item = cart[id];
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                itemCount += item.quantity;
+                
+                const displayName = isHindi ? item.nameHi : item.nameEn;
+
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                        <div class="flex-grow pr-4">
+                            <h4 class="text-cream font-bold text-sm md:text-base leading-tight mb-1.5">${displayName}</h4>
+                            <span class="text-gold text-sm font-black tracking-wide">₹${item.price}</span>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            <span class="text-cream font-black text-base">₹${itemTotal}</span>
+                            <div class="flex items-center gap-3 bg-dark-900 rounded-xl p-1 border border-white/10">
+                                <button onclick="updateQuantity('${id}', -1)" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-accent hover:bg-white/10 rounded-lg transition-colors"><i class="fas fa-minus text-[10px]"></i></button>
+                                <span class="text-cream font-bold w-4 text-center text-sm">${item.quantity}</span>
+                                <button onclick="updateQuantity('${id}', 1)" class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-green-400 hover:bg-white/10 rounded-lg transition-colors"><i class="fas fa-plus text-[10px]"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            floatingTotal.textContent = `₹${total}`;
+            modalTotal.textContent = `₹${total}`;
+            badgeCount.textContent = itemCount;
+
+            if(itemCount > 0) {
+                floatingCart.classList.remove('hidden');
+            } else {
+                floatingCart.classList.add('hidden');
+                
+                const emptyMsgEn = "Your cart is empty.";
+                const emptyMsgHi = "आपका कार्ट खाली है।";
+                const emptySubEn = "Add some delicious cravings!";
+                const emptySubHi = "कुछ स्वादिष्ट आइटम जोड़ें!";
+                
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-12 flex flex-col items-center justify-center h-full">
+                        <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-6">
+                            <i class="fas fa-shopping-basket text-5xl opacity-30 text-gold"></i>
+                        </div>
+                        <p class="text-xl font-bold text-gray-300" data-en="${emptyMsgEn}" data-hi="${emptyMsgHi}">${isHindi ? emptyMsgHi : emptyMsgEn}</p>
+                        <p class="text-sm mt-2 tracking-wide" data-en="${emptySubEn}" data-hi="${emptySubHi}">${isHindi ? emptySubHi : emptySubEn}</p>
+                    </div>`;
+            }
+        }
+
+        function openCart() {
+            const modal = document.getElementById('cartModal');
+            const content = document.getElementById('cartModalContent');
+            updateCartUI(); 
+            modal.classList.remove('hidden');
+            void modal.offsetWidth;
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+        }
+
+        function closeCart() {
+            const modal = document.getElementById('cartModal');
+            const content = document.getElementById('cartModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function checkoutViaWhatsApp() {
+            if(Object.keys(cart).length === 0) return;
+            const isHindi = document.body.classList.contains('lang-hi');
+
+            let message = isHindi 
+                ? "नमस्ते 'द लास्ट ऑप्शन'! मैं एक ऑर्डर देना चाहता हूँ:\n\n"
+                : "Hi The Last Option! I'd like to place an order:\n\n";
+            let total = 0;
+
+            for(const id in cart) {
+                const item = cart[id];
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                const nameToUse = isHindi ? item.nameHi : item.nameEn;
+                message += `▪️ ${item.quantity}x ${nameToUse} - ₹${itemTotal}\n`;
+            }
+
+            const totalText = isHindi ? "*कुल राशि*" : "*Total Amount*";
+            const confirmText = isHindi ? "कृपया मेरे ऑर्डर की पुष्टि करें!" : "Please confirm my order!";
+
+            message += `\n${totalText}: ₹${total}\n\n${confirmText}`;
+            
+            window.open(`https://wa.me/916375965153?text=${encodeURIComponent(message)}`, '_blank');
+            closeCart();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-[-20px]');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-20px]');
+            }, 2500);
+        }
+
+        // --- UI Interactions ---
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-[0_4px_30px_rgba(0,0,0,0.8)]');
+                navbar.style.background = 'rgba(5,5,5,0.85)';
+            } else {
+                navbar.classList.remove('shadow-[0_4px_30px_rgba(0,0,0,0.8)]');
+                navbar.style.background = 'rgba(5,5,5,0.75)';
+            }
+        });
+
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 100) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+    </script>
+</body>
+</html>
