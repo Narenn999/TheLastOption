@@ -1081,21 +1081,70 @@
             });
         }
 
-        // --- Search / Filter Logic ---
+        // --- Search / Filter Logic (Fuzzy Matching + Cross Language) ---
+        // Levenshtein distance helper
+        function getEditDistance(a, b) {
+            if(a.length === 0) return b.length;
+            if(b.length === 0) return a.length;
+
+            var matrix = [];
+            for(var i = 0; i <= b.length; i++){ matrix[i] = [i]; }
+            for(var j = 0; j <= a.length; j++){ matrix[0][j] = j; }
+
+            for(var i = 1; i <= b.length; i++){
+                for(var j = 1; j <= a.length; j++){
+                    if(b.charAt(i-1) == a.charAt(j-1)){
+                        matrix[i][j] = matrix[i-1][j-1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // Fuzzy match helper
+        function fuzzyMatch(query, text) {
+            query = query.toLowerCase().trim();
+            text = text.toLowerCase();
+            if (!query) return true;
+            if (text.includes(query)) return true;
+
+            const queryWords = query.split(/[\s,]+/);
+            const textWords = text.split(/[\s,]+/);
+
+            return queryWords.every(qWord => {
+                return textWords.some(tWord => {
+                    if (tWord.includes(qWord)) return true;
+                    // Allow 1 typo for small words, 2 typos for larger words
+                    const allowedDist = qWord.length > 4 ? 2 : (qWord.length > 2 ? 1 : 0);
+                    return getEditDistance(qWord, tWord) <= allowedDist;
+                });
+            });
+        }
+
         document.getElementById('searchInput').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase();
+            const term = e.target.value;
             const items = document.querySelectorAll('.item-row');
             
             items.forEach(item => {
-                const text = item.textContent.toLowerCase();
-                if (text.includes(term)) {
+                // Collect ALL possible text: what's currently visible + ALL data attributes
+                let searchSpace = item.textContent + " ";
+                const dualLangNodes = item.querySelectorAll('[data-en], [data-hi]');
+                
+                dualLangNodes.forEach(node => {
+                    if(node.hasAttribute('data-en')) searchSpace += node.getAttribute('data-en') + " ";
+                    if(node.hasAttribute('data-hi')) searchSpace += node.getAttribute('data-hi') + " ";
+                });
+                
+                if (fuzzyMatch(term, searchSpace)) {
                     item.style.display = 'flex';
                 } else {
                     item.style.display = 'none';
                 }
             });
             
-            // Hide category card if all items are hidden
+            // Hide category card if all items inside are hidden
             document.querySelectorAll('.category-card').forEach(card => {
                 const visibleItems = card.querySelectorAll('.item-row[style="display: flex;"], .item-row:not([style*="display: none"])');
                 if (visibleItems.length === 0) {
