@@ -34,6 +34,7 @@
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'blob': 'blob 7s infinite',
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) 2',
                     },
                     keyframes: {
                         float: {
@@ -96,22 +97,26 @@
             box-shadow: 0 25px 50px rgba(245, 158, 11, 0.1);
         }
 
-        /* Unified Modern List Items */
+        /* Unified Modern List Items - with UPGRADED hover effect */
         .item-row { 
-            transition: all 0.3s ease; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             padding: 1rem 0.5rem;
             display: flex; align-items: center; gap: 1rem;
+            border: 1px solid transparent;
         }
-        .item-row:last-child { border-bottom: none; }
+        .item-row:last-child { border-bottom-color: transparent; }
         .item-row:hover {
-            background: rgba(255, 255, 255, 0.04); 
+            background: rgba(255, 255, 255, 0.05); 
             border-radius: 12px; 
-            transform: translateX(4px);
-            border-bottom-color: transparent;
+            transform: translateY(-2px) scale(1.02);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             padding-left: 1rem;
             padding-right: 1rem;
-            margin: 0 -0.5rem; /* Compensate for padding to keep image aligned */
+            margin: 0 -0.5rem;
+            z-index: 10;
+            position: relative;
         }
 
         /* Improved Food Thumbnails */
@@ -121,6 +126,7 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.4);
             transition: all 0.4s ease;
             flex-shrink: 0;
+            background-color: #171717; /* Fallback */
         }
         .item-row:hover .food-thumb { 
             transform: scale(1.08) rotate(2deg); 
@@ -136,11 +142,18 @@
             border: 1px solid rgba(245, 158, 11, 0.3);
             transition: all 0.3s ease;
             cursor: pointer;
+            flex-shrink: 0;
         }
         .btn-add:hover {
             background: #F59E0B; color: #0a0a0a;
             transform: scale(1.1);
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Wishlist Heart Button */
+        .wishlist-btn i.fa-heart.fas {
+            color: #E11D48; /* Accent Color */
+            text-shadow: 0 0 10px rgba(225, 29, 72, 0.5);
         }
 
         /* Tag Styling */
@@ -150,6 +163,7 @@
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             font-size: 0.75rem; font-weight: 700; color: #FAFAF9;
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         .tag-pill:hover { background: rgba(245, 158, 11, 0.15); border-color: #F59E0B; color: #F59E0B; }
 
@@ -173,7 +187,20 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-[60] bg-gold text-dark-900 px-6 py-3 rounded-full font-bold shadow-[0_10px_30px_rgba(245,158,11,0.4)] transition-all duration-300 opacity-0 pointer-events-none translate-y-[-20px] flex items-center gap-2">
-        <i class="fas fa-check-circle text-lg"></i> <span id="toastMsg" data-en="Item added to cart!" data-hi="आइटम कार्ट में जुड़ गया!">Item added to cart!</span>
+        <i class="fas fa-check-circle text-lg"></i> <span id="toastMsg"></span>
+    </div>
+
+    <!-- Coupon Popup Announcement -->
+    <div id="couponPopup" class="fixed bottom-24 left-6 z-50 bg-gradient-to-br from-dark-800 to-dark-900 border border-gold/30 p-4 rounded-2xl shadow-[0_10px_30px_rgba(245,158,11,0.2)] transform translate-y-20 opacity-0 transition-all duration-500 max-w-[320px] hidden md:block">
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-ticket-alt text-gold text-xl"></i>
+                <h4 class="font-bold text-cream text-lg">Special Offer!</h4>
+            </div>
+            <button onclick="closeCouponPopup()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+        </div>
+        <p class="text-sm text-gray-300 mb-4 leading-snug" data-en="Use coupon code RJ11 to get 5% discount on food & shakes (Min order: ₹300)" data-hi="फ़ूड और शेक पर 5% छूट पाने के लिए RJ11 कूपन का उपयोग करें (न्यूनतम ऑर्डर: ₹300)">Use coupon code <strong class="text-gold bg-gold/10 px-1.5 py-0.5 rounded">RJ11</strong> to get 5% discount on food & shakes (Min order: ₹300).</p>
+        <button onclick="copyCoupon(); closeCouponPopup()" class="w-full bg-gold/10 hover:bg-gold/20 border border-gold/30 text-gold py-2 rounded-xl text-sm font-bold transition-colors uppercase tracking-wider">Copy Code</button>
     </div>
 
     <!-- Animated Background -->
@@ -220,10 +247,10 @@
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center gap-3">
-                    <button onclick="toggleLanguage()" class="p-2.5 bg-white/5 rounded-xl border border-white/10 text-cream text-sm font-bold shadow-lg">
-                        <i class="fas fa-language text-gold mr-1"></i>
-                        <span class="english-text">अ</span>
-                        <span class="hindi-text">A</span>
+                    <button onclick="toggleLanguage()" class="flex items-center justify-center gap-1.5 px-3 py-2 bg-white/5 rounded-xl border border-white/10 text-cream text-sm font-bold shadow-lg backdrop-blur-md transition-colors hover:bg-white/10">
+                        <i class="fas fa-language text-gold text-base"></i>
+                        <span class="english-text leading-none mt-0.5">अ</span>
+                        <span class="hindi-text leading-none mt-0.5">A</span>
                     </button>
                     <button id="mobile-menu-btn" class="text-cream hover:text-gold focus:outline-none p-2 bg-transparent rounded-lg">
                         <i class="fas fa-bars text-2xl"></i>
@@ -292,7 +319,7 @@
     <!-- Menu Section -->
     <section id="menu" class="py-24 relative z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16 reveal">
+            <div class="text-center mb-10 reveal">
                 <span class="text-gold uppercase tracking-[0.2em] font-bold text-xs mb-3 block" data-en="Premium Taste" data-hi="प्रीमियम स्वाद">Premium Taste</span>
                 <h2 class="font-serif text-5xl md:text-7xl font-extrabold text-cream mb-6" data-en="Our Menu" data-hi="हमारा मेन्यू">Our <span class="text-gold">Menu</span></h2>
                 <div class="w-24 h-1 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto rounded-full opacity-50 mb-8"></div>
@@ -303,11 +330,19 @@
                 </div>
             </div>
 
+            <!-- Enhanced Search Filter -->
+            <div class="mb-12 max-w-2xl mx-auto relative reveal">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gold text-lg"></i>
+                </div>
+                <input type="text" id="searchInput" class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-14 pr-4 text-cream placeholder-gray-500 font-medium focus:outline-none focus:border-gold/50 focus:bg-white/10 focus:ring-1 focus:ring-gold/50 transition-all backdrop-blur-md shadow-lg" data-en="Search for pizza, burger, shake..." data-hi="पिज़्ज़ा, बर्गर, शेक खोजें..." placeholder="Search for pizza, burger, shake...">
+            </div>
+
             <!-- Modern Masonry-style Grid Setup -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8" id="menuGrid">
                 
                 <!-- PIZZA CATEGORY -->
-                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full">
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full category-card">
                     <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-orange-500/5 flex items-center justify-center border border-orange-500/30 shadow-[0_0_15px_rgba(249,115,22,0.1)]">
                             <i class="fas fa-pizza-slice text-xl text-orange-400"></i>
@@ -319,34 +354,86 @@
                         <div class="item-row">
                             <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="OTC Pizza">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="OTC Pizza" data-hi="ओटीसी पिज़्ज़ा">OTC Pizza</h4>
-                                <p class="text-[11px] text-gray-400 line-clamp-1 tracking-wide" data-en="Onion, Tomato, Capsicum" data-hi="प्याज, टमाटर, शिमला मिर्च">Onion, Tomato, Capsicum</p>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="OTC Pizza" data-hi="ओटीसी पिज़्ज़ा">OTC Pizza</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹160</span>
-                                <button onclick="addToCart('pizza_otc', 'OTC Pizza', 'ओटीसी पिज़्ज़ा', 160)" class="btn-add">
-                                    <i class="fas fa-plus text-sm"></i>
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pizza_otc')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pizza_otc"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pizza_otc', 'OTC Pizza', 'ओटीसी पिज़्ज़ा', 160)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                         <div class="item-row">
-                            <img src="https://www.cookingcarnival.com/wp-content/uploads/2019/11/Paneer-Pizza-7.jpg" class="food-thumb" alt="Paneer Pizza">
+                            <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Margarita Pizza">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="Paneer Pizza" data-hi="पनीर पिज़्ज़ा">Paneer Pizza</h4>
-                                <p class="text-[11px] text-gray-400 line-clamp-1 tracking-wide" data-en="Loaded with fresh paneer" data-hi="ताज़ा पनीर से भरपूर">Loaded with fresh paneer</p>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Margarita Pizza" data-hi="मार्गेरिटा पिज़्ज़ा">Margarita Pizza</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹160</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pizza_margarita')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pizza_margarita"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pizza_margarita', 'Margarita Pizza', 'मार्गेरिटा पिज़्ज़ा', 160)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Sweet Corn Pizza">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Sweet Corn Pizza" data-hi="स्वीट कॉर्न पिज़्ज़ा">Sweet Corn Pizza</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹170</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pizza_sweetcorn')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pizza_sweetcorn"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pizza_sweetcorn', 'Sweet Corn Pizza', 'स्वीट कॉर्न पिज़्ज़ा', 170)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Double Cheese Pizza">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Double Cheese Pizza" data-hi="डबल चीज़ पिज़्ज़ा">Double Cheese Pizza</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹180</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pizza_double')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pizza_double"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pizza_double', 'Double Cheese Pizza', 'डबल चीज़ पिज़्ज़ा', 180)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://www.cookingcarnival.com/wp-content/uploads/2019/11/Paneer-Pizza-7.jpg" class="food-thumb" alt="Cottage Cheese Pizza">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Cottage Cheese Pizza" data-hi="कॉटेज चीज़ पिज़्ज़ा">Cottage Cheese Pizza</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹190</span>
-                                <button onclick="addToCart('pizza_paneer', 'Paneer Pizza', 'पनीर पिज़्ज़ा', 190)" class="btn-add">
-                                    <i class="fas fa-plus text-sm"></i>
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pizza_cottage')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pizza_cottage"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pizza_cottage', 'Cottage Cheese Pizza', 'कॉटेज चीज़ पिज़्ज़ा', 190)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFyhxM0QHX2Y4t7QDQAZGYplXWotKYuOT88g&s" class="food-thumb" alt="Bread Pizza">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Bread Pizza" data-hi="ब्रेड पिज़्ज़ा">Bread Pizza</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹120</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pizza_bread')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pizza_bread"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pizza_bread', 'Bread Pizza', 'ब्रेड पिज़्ज़ा', 120)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- BURGERS & MOMOS CATEGORY -->
-                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 100ms;">
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full category-card" style="transition-delay: 100ms;">
                     <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/30 to-red-500/5 flex items-center justify-center border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]">
                             <i class="fas fa-hamburger text-xl text-red-400"></i>
@@ -361,18 +448,24 @@
                                 <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Burger" data-hi="वेज बर्गर">Veg Burger</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹40</span>
-                                <button onclick="addToCart('burger_veg', 'Veg Burger', 'वेज बर्गर', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <span class="font-black text-gold text-lg leading-none">₹50</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('burger_veg')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="burger_veg"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('burger_veg', 'Veg Burger', 'वेज बर्गर', 50)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                         <div class="item-row">
-                            <img src="https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Cheese Burger">
+                            <img src="https://images.unsplash.com/photo-1586816001966-79b736744398?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Veg Cheese Burger">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Cheese Burger" data-hi="चीज़ बर्गर">Cheese Burger</h4>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Cheese Burger" data-hi="वेज चीज़ बर्गर">Veg Cheese Burger</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹60</span>
-                                <button onclick="addToCart('burger_cheese', 'Cheese Burger', 'चीज़ बर्गर', 60)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <span class="font-black text-gold text-lg leading-none">₹70</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('burger_cheese')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="burger_cheese"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('burger_cheese', 'Veg Cheese Burger', 'वेज चीज़ बर्गर', 70)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                         
@@ -386,7 +479,10 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹40</span>
-                                <button onclick="addToCart('momos_steam', 'Veg Steam Momos', 'वेज स्टीम मोमोज़', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('momos_steam')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="momos_steam"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('momos_steam', 'Veg Steam Momos', 'वेज स्टीम मोमोज़', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                         <div class="item-row">
@@ -396,14 +492,17 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹60</span>
-                                <button onclick="addToCart('momos_fried', 'Veg Fried Momos', 'वेज फ्राइड मोमोज़', 60)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('momos_fried')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="momos_fried"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('momos_fried', 'Veg Fried Momos', 'वेज फ्राइड मोमोज़', 60)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- SANDWICH CATEGORY -->
-                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 200ms;">
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full category-card" style="transition-delay: 200ms;">
                     <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/30 to-yellow-500/5 flex items-center justify-center border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]">
                             <i class="fas fa-bread-slice text-xl text-yellow-400"></i>
@@ -419,35 +518,135 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹40</span>
-                                <button onclick="addToCart('sand_veg', 'Veg Sandwich', 'वेज सैंडविच', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('sand_veg')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="sand_veg"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('sand_veg', 'Veg Sandwich', 'वेज सैंडविच', 40)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                         <div class="item-row">
-                            <img src="https://images.unsplash.com/photo-1619096252214-ef06c45683e3?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Grilled Sandwich">
+                            <img src="https://images.unsplash.com/photo-1619096252214-ef06c45683e3?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Veg Grilled Sandwich">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Grilled Sandwich" data-hi="ग्रिल्ड सैंडविच">Grilled Sandwich</h4>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Grilled Sandwich" data-hi="वेज ग्रिल्ड सैंडविच">Veg Grilled Sandwich</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹50</span>
-                                <button onclick="addToCart('sand_grill', 'Grilled Sandwich', 'ग्रिल्ड सैंडविच', 50)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('sand_grill')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="sand_grill"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('sand_grill', 'Veg Grilled Sandwich', 'वेज ग्रिल्ड सैंडविच', 50)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                         <div class="item-row">
-                            <img src="https://cravinghomecooked.com/wp-content/uploads/2023/07/grilled-cheese-1-13.jpg.webp" class="food-thumb" alt="Cheese Grill">
+                            <img src="https://cravinghomecooked.com/wp-content/uploads/2023/07/grilled-cheese-1-13.jpg.webp" class="food-thumb" alt="Veg Grilled Cheese">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="Cheese Grill" data-hi="चीज़ ग्रिल">Cheese Grill</h4>
-                                <p class="text-[11px] text-accent font-semibold tracking-wide uppercase" data-en="Loaded with Cheese!" data-hi="चीज़ से भरपूर!">Loaded with Cheese!</p>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Veg Grilled Cheese" data-hi="वेज ग्रिल्ड चीज़ सैंडविच">Veg Grilled Cheese</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹70</span>
-                                <button onclick="addToCart('sand_cheese', 'Cheese Grill', 'चीज़ ग्रिल सैंडविच', 70)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('sand_cheese')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="sand_cheese"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('sand_cheese', 'Veg Grilled Cheese Sandwich', 'वेज ग्रिल्ड चीज़ सैंडविच', 70)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row relative overflow-hidden">
+                            <div class="absolute -left-8 top-2 bg-accent text-white text-[9px] font-black px-8 py-0.5 -rotate-45 shadow-lg" data-en="NEW" data-hi="नया">NEW</div>
+                            <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=200&q=80" class="food-thumb ml-2" alt="Fully Loaded Grilled">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Fully Loaded Grilled" data-hi="फुली लोडेड ग्रिल्ड">Fully Loaded Grilled</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹90</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('sand_fully')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="sand_fully"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('sand_fully', 'Fully Loaded Grilled Sandwich', 'फुली लोडेड ग्रिल्ड सैंडविच', 90)" class="btn-add bg-gold text-dark-900 border-none shadow-[0_0_10px_rgba(245,158,11,0.5)]"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PETEEZ CATEGORY -->
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full category-card">
+                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600/30 to-orange-600/5 flex items-center justify-center border border-orange-600/30 shadow-[0_0_15px_rgba(234,88,12,0.1)]">
+                            <i class="fas fa-cookie text-xl text-orange-400"></i>
+                        </div>
+                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Peteez (Patties)" data-hi="पेटीज़">Peteez (Patties)</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-1 flex-grow">
+                        <div class="item-row">
+                            <img src="https://b.zmtcdn.com/data/pictures/7/20559867/55cdc5c5f4b9529af1fb4c132ded6cbc.jpg" class="food-thumb" alt="Plain Grilled Patties">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Plain Grilled Patties" data-hi="प्लेन ग्रिल्ड पेटीज़">Plain Grilled Patties</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹25</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pat_plain')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pat_plain"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pat_plain', 'Plain Grilled Patties', 'प्लेन ग्रिल्ड पेटीज़', 25)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWb_8269mGBQH5G9IL7Sozz_zhtR46sWHwHg&s" class="food-thumb" alt="Tandoori Patties">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Tandoori Patties" data-hi="तंदूरी पेटीज़">Tandoori Patties</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹30</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pat_tandoori')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pat_tandoori"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pat_tandoori', 'Tandoori Patties', 'तंदूरी पेटीज़', 30)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://image.cdn.shpy.in/75052/SKU-0370_0-1753694690700.jpg?width=600&format=webp" class="food-thumb" alt="Mayonnaise Patties">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Mayonnaise Patties" data-hi="मेयोनेज़ पेटीज़">Mayonnaise Patties</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹30</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pat_mayo')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pat_mayo"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pat_mayo', 'Mayonnaise Patties', 'मेयोनेज़ पेटीज़', 30)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://image.cdn.shpy.in/75052/SKU-0370_0-1753694690700.jpg?width=600&format=webp" class="food-thumb" alt="Liquid Cheese Patties">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Liquid Cheese Patties" data-hi="लिक्विड चीज़ पेटीज़">Liquid Cheese Patties</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹30</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pat_liquid')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pat_liquid"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pat_liquid', 'Liquid Cheese Patties', 'लिक्विड चीज़ पेटीज़', 30)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-row">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWb_8269mGBQH5G9IL7Sozz_zhtR46sWHwHg&s" class="food-thumb" alt="Cheese Patties">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Cheese Patties" data-hi="चीज़ पेटीज़">Cheese Patties</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹35</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('pat_cheese')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="pat_cheese"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('pat_cheese', 'Cheese Patties', 'चीज़ पेटीज़', 35)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- COFFEE & TEA CATEGORY -->
-                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full">
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full category-card" style="transition-delay: 100ms;">
                     <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-700/30 to-amber-700/5 flex items-center justify-center border border-amber-700/30 shadow-[0_0_15px_rgba(180,83,9,0.1)]">
                             <i class="fas fa-coffee text-xl text-amber-500"></i>
@@ -457,24 +656,29 @@
                     
                     <div class="flex flex-col gap-1 flex-grow">
                         <div class="item-row">
-                            <img src="https://images.indianexpress.com/2021/01/coffee1200_getty.jpg?w=1200" class="food-thumb" alt="Hot Coffee">
+                            <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Cold Coffee">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Hot Coffee" data-hi="हॉट कॉफ़ी">Hot Coffee</h4>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Cold Coffee" data-hi="कोल्ड कॉफ़ी">Cold Coffee</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹20</span>
-                                <button onclick="addToCart('coffee_hot', 'Hot Coffee', 'हॉट कॉफ़ी', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <span class="font-black text-gold text-lg leading-none">₹75</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('coffee_cold')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="coffee_cold"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('coffee_cold', 'Cold Coffee', 'कोल्ड कॉफ़ी', 75)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
 
                         <div class="item-row border-b border-white/5 pb-4 mb-2">
-                            <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Cold Coffee">
-                            <div class="flex-grow w-full">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-2" data-en="Cold Coffee" data-hi="कोल्ड कॉफ़ी">Cold Coffee</h4>
-                                <div class="flex gap-2 flex-wrap">
-                                    <button onclick="addToCart('cc_s', 'Cold Coffee (S)', 'कोल्ड कॉफ़ी (S)', 40)" class="tag-pill">S ₹40 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
-                                    <button onclick="addToCart('cc_m', 'Cold Coffee (M)', 'कोल्ड कॉफ़ी (M)', 50)" class="tag-pill">M ₹50 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
-                                    <button onclick="addToCart('cc_l', 'Cold Coffee (L)', 'कोल्ड कॉफ़ी (L)', 70)" class="tag-pill">L ₹70 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Cold Coffee with Ice Cream">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Cold Coffee with Ice Cream" data-hi="कोल्ड कॉफ़ी विद आइसक्रीम">Cold Coffee with Ice Cream</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹90</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('coffee_cold_ice')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="coffee_cold_ice"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('coffee_cold_ice', 'Cold Coffee with Ice Cream', 'कोल्ड कॉफ़ी विद आइसक्रीम', 90)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -486,70 +690,31 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹10</span>
-                                <button onclick="addToCart('chai_classic', 'Classic Chai', 'क्लासिक चाय', 10)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('chai_classic')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="chai_classic"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('chai_classic', 'Classic Chai', 'क्लासिक चाय', 10)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
 
                         <div class="item-row">
                             <img src="https://5.imimg.com/data5/SELLER/Default/2024/2/393896129/JT/XF/EH/19170599/clay-kulhad-for-tandoori-tea.jpg" class="food-thumb" alt="Tandoori Chai">
                             <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-1" data-en="Tandoori Chai" data-hi="तंदूरी चाय">Tandoori Chai</h4>
-                                <p class="text-[11px] text-orange-400 font-bold uppercase tracking-wide" data-en="Kulhad Special" data-hi="कुल्हड़ स्पेशल">Kulhad Special</p>
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Tandoori Chai" data-hi="तंदूरी चाय">Tandoori Chai</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <span class="font-black text-gold text-lg leading-none">₹20</span>
-                                <button onclick="addToCart('chai_tandoori', 'Tandoori Chai', 'तंदूरी चाय', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PETEEZ CATEGORY -->
-                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 100ms;">
-                    <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600/30 to-orange-600/5 flex items-center justify-center border border-orange-600/30 shadow-[0_0_15px_rgba(234,88,12,0.1)]">
-                            <i class="fas fa-cookie text-xl text-orange-400"></i>
-                        </div>
-                        <h3 class="font-serif text-3xl font-bold text-cream tracking-wide" data-en="Peteez (Patties)" data-hi="पेटीज़">Peteez (Patties)</h3>
-                    </div>
-                    
-                    <div class="flex flex-col gap-1 flex-grow">
-                        <div class="item-row">
-                            <img src="https://b.zmtcdn.com/data/pictures/7/20559867/55cdc5c5f4b9529af1fb4c132ded6cbc.jpg" class="food-thumb" alt="Saada Peteez">
-                            <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Saada Peteez" data-hi="सादा पेटीज़">Saada Peteez</h4>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹20</span>
-                                <button onclick="addToCart('peteez_saada', 'Saada Peteez', 'सादा पेटीज़', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
-                            </div>
-                        </div>
-                        <div class="item-row">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWb_8269mGBQH5G9IL7Sozz_zhtR46sWHwHg&s" class="food-thumb" alt="Paneer Peteez">
-                            <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Tandoori Paneer" data-hi="तंदूरी पनीर पेटीज़">Tandoori Paneer</h4>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹35</span>
-                                <button onclick="addToCart('peteez_paneer', 'Tandoori Paneer Peteez', 'तंदूरी पनीर पेटीज़', 35)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
-                            </div>
-                        </div>
-                        <div class="item-row relative overflow-hidden">
-                            <div class="absolute -left-8 top-2 bg-accent text-white text-[9px] font-black px-8 py-0.5 -rotate-45 shadow-lg" data-en="BEST" data-hi="बेस्ट">BEST</div>
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWb_8269mGBQH5G9IL7Sozz_zhtR46sWHwHg&s" class="food-thumb ml-2" alt="Cheese Peteez">
-                            <div class="flex-grow">
-                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Tandoori Cheese" data-hi="तंदूरी चीज़ पेटीज़">Tandoori Cheese</h4>
-                            </div>
-                            <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹45</span>
-                                <button onclick="addToCart('peteez_cheese', 'Tandoori Cheese Peteez', 'तंदूरी चीज़ पेटीज़', 45)" class="btn-add bg-gold text-dark-900 border-none shadow-[0_0_10px_rgba(245,158,11,0.5)]"><i class="fas fa-plus text-sm"></i></button>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('chai_tandoori')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="chai_tandoori"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('chai_tandoori', 'Tandoori Chai', 'तंदूरी चाय', 20)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- SHAKES CATEGORY -->
-                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full" style="transition-delay: 200ms;">
+                <div class="glass-card rounded-3xl p-6 lg:p-8 reveal h-full category-card" style="transition-delay: 200ms;">
                     <div class="flex items-center gap-4 mb-6 pb-5 border-b border-white/5">
                         <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500/30 to-pink-500/5 flex items-center justify-center border border-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.1)]">
                             <i class="fas fa-glass-whiskey text-xl text-pink-400"></i>
@@ -564,27 +729,40 @@
                                 <h4 class="font-bold text-lg text-cream leading-tight" data-en="Kitkat Shake" data-hi="किटकैट शेक">Kitkat Shake</h4>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <span class="font-black text-gold text-lg leading-none">₹80</span>
-                                <button onclick="addToCart('shake_kitkat', 'Kitkat Shake', 'किटकैट शेक', 80)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
-                            </div>
-                        </div>
-                        <div class="item-row border-b border-white/5 pb-4 mb-2">
-                            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Classic Shakes">
-                            <div class="flex-grow w-full">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-2" data-en="Classic Shakes" data-hi="क्लासिक शेक्स">Classic Shakes</h4>
-                                <div class="flex gap-2 flex-wrap">
-                                    <button onclick="addToCart('shake_choc', 'Chocolate Shake', 'चॉकलेट शेक', 60)" class="tag-pill">Choc ₹60 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
-                                    <button onclick="addToCart('shake_oreo', 'Oreo Shake', 'ओरियो शेक', 70)" class="tag-pill">Oreo ₹70 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                <span class="font-black text-gold text-lg leading-none">₹90</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('shake_kitkat')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="shake_kitkat"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('shake_kitkat', 'Kitkat Shake', 'किटकैट शेक', 90)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
                                 </div>
                             </div>
                         </div>
+                        <div class="item-row border-b border-white/5 pb-4 mb-2">
+                            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Oreo Shake">
+                            <div class="flex-grow">
+                                <h4 class="font-bold text-lg text-cream leading-tight" data-en="Oreo Shake" data-hi="ओरियो शेक">Oreo Shake</h4>
+                            </div>
+                            <div class="flex flex-col items-end gap-2">
+                                <span class="font-black text-gold text-lg leading-none">₹90</span>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="toggleWishlist('shake_oreo')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors p-1" data-id="shake_oreo"><i class="far fa-heart text-lg"></i></button>
+                                    <button onclick="addToCart('shake_oreo', 'Oreo Shake', 'ओरियो शेक', 90)" class="btn-add"><i class="fas fa-plus text-sm"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="item-row">
-                            <img src="https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=200&q=80" class="food-thumb" alt="Fruit Shakes">
                             <div class="flex-grow w-full">
-                                <h4 class="font-bold text-lg text-cream leading-tight mb-2" data-en="Fruit Shakes" data-hi="फ्रूट शेक्स">Fruit Shakes</h4>
+                                <h4 class="font-bold text-lg text-cream leading-tight mb-3 flex items-center justify-between" data-en="Classic & Fruit Shakes" data-hi="क्लासिक और फ्रूट शेक्स">
+                                    Classic & Fruit Shakes
+                                    <button onclick="toggleWishlist('shake_classic_fruit')" class="wishlist-btn text-gray-500 hover:text-accent transition-colors" data-id="shake_classic_fruit"><i class="far fa-heart"></i></button>
+                                </h4>
                                 <div class="flex gap-2 flex-wrap">
-                                    <button onclick="addToCart('shake_straw', 'Strawberry Shake', 'स्ट्रॉबेरी शेक', 60)" class="tag-pill">Straw ₹60 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
-                                    <button onclick="addToCart('shake_banana', 'Banana Shake', 'बनाना शेक', 50)" class="tag-pill">Banana ₹50 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_vanilla', 'Vanilla Shake', 'वैनिला शेक', 80)" class="tag-pill">Vanilla ₹80 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_choc', 'Chocolate Shake', 'चॉकलेट शेक', 80)" class="tag-pill">Chocolate ₹80 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_straw', 'Strawberry Shake', 'स्ट्रॉबेरी शेक', 80)" class="tag-pill">Strawberry ₹80 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_pine', 'Pineapple Shake', 'पाइनएप्पल शेक', 80)" class="tag-pill">Pineapple ₹80 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_banana', 'Banana Shake', 'बनाना शेक', 80)" class="tag-pill">Banana ₹80 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
+                                    <button onclick="addToCart('shake_mango', 'Mango Shake', 'मैंगो शेक', 80)" class="tag-pill">Mango ₹80 <i class="fas fa-plus text-[10px] ml-0.5 opacity-50"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -608,12 +786,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
                         <div class="bg-white/5 backdrop-blur-md rounded-3xl p-8 md:p-10 border border-white/10 hover:border-gold/50 transition-all hover:-translate-y-2 group shadow-xl">
                             <div class="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                                <i class="fas fa-cloud-moon text-3xl text-gold"></i>
+                                <i class="fas fa-ticket-alt text-3xl text-gold"></i>
                             </div>
-                            <h3 class="text-3xl font-serif text-cream font-bold" data-en="Evening Special" data-hi="इवनिंग स्पेशल">Evening Special</h3>
-                            <p class="text-gray-400 mt-3 mb-6 font-medium tracking-wide"><i class="far fa-clock mr-1 text-gold"></i> 7 PM – 9 PM</p>
-                            <div class="bg-gradient-to-r from-gold/20 to-gold/5 text-gold text-lg md:text-xl font-black py-4 px-2 rounded-2xl border border-gold/20 shadow-inner uppercase tracking-wide" data-en="FREE Complimentary Hukkah" data-hi="मुफ़्त कॉम्प्लिमेंट्री हुक्का">
-                                FREE Complimentary Hukkah
+                            <h3 class="text-3xl font-serif text-cream font-bold" data-en="Coupon RJ11" data-hi="कूपन RJ11">Coupon RJ11</h3>
+                            <p class="text-gray-400 mt-3 mb-6 font-medium tracking-wide" data-en="Order value above ₹300" data-hi="ऑर्डर वैल्यू ₹300 से अधिक">Order value above ₹300</p>
+                            <div class="bg-gradient-to-r from-gold/20 to-gold/5 text-gold text-lg md:text-xl font-black py-4 px-2 rounded-2xl border border-gold/20 shadow-inner uppercase tracking-wide cursor-pointer hover:bg-gold/30 transition-colors" onclick="copyCoupon()" data-en="Get 5% Off Food & Shakes" data-hi="फ़ूड और शेक पर 5% छूट पाएँ">
+                                Get 5% Off Food & Shakes
                             </div>
                         </div>
 
@@ -655,7 +833,7 @@
                     <ul class="space-y-6 text-gray-300 inline-block text-left w-full">
                         <li>
                             <a href="https://wa.me/916375965153" target="_blank" class="flex items-center group cursor-pointer w-full bg-white/5 p-4 rounded-2xl hover:bg-white/10 border border-transparent hover:border-white/10 transition-all">
-                                <div class="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center mr-4 group-hover:bg-gold transition-colors shadow-inner">
+                                <div class="w-12 h-12 flex-shrink-0 rounded-full bg-gold/10 flex items-center justify-center mr-4 group-hover:bg-gold transition-colors shadow-inner">
                                     <i class="fas fa-phone-alt text-gold group-hover:text-dark-900 text-lg"></i>
                                 </div>
                                 <div>
@@ -664,8 +842,17 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="flex items-center px-4">
-                            <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mr-4">
+                        <li class="flex items-start px-4">
+                            <div class="w-12 h-12 flex-shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mr-4">
+                                <i class="fas fa-map-marker-alt text-gold text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-lg text-cream tracking-wide" data-en="Our Location" data-hi="हमारा पता">Our Location</p>
+                                <p class="text-sm text-gray-400 mt-0.5 leading-relaxed" data-en="Chhagan Market 2, Mothiyapura Mod, Sarmathura" data-hi="छगन मार्केट 2, मोतियापुरा मोड़, सरमथुरा">Chhagan Market 2, Mothiyapura Mod, Sarmathura</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start px-4">
+                            <div class="w-12 h-12 flex-shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mr-4">
                                 <i class="fas fa-clock text-gold text-lg"></i>
                             </div>
                             <div>
@@ -676,7 +863,7 @@
                     </ul>
                 </div>
 
-                <div class="h-full min-h-[250px] rounded-3xl overflow-hidden border border-white/10 relative group cursor-pointer block shadow-2xl" onclick="window.open('https://maps.app.goo.gl/nDRoRcULDL9HUnfX8', '_blank')">
+                <div class="h-full min-h-[250px] rounded-3xl overflow-hidden border border-white/10 relative group cursor-pointer block shadow-2xl" onclick="window.open('https://www.google.com/maps/search/?api=1&query=Chhagan+Market+2+Mothiyapura+Mod+Sarmathura', '_blank')">
                     <iframe 
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3559.877283914113!2d75.7788893150433!3d26.912433683128415!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396db4eb40232467%3A0x66c8236e788bc57a!2sJaipur%2C%20Rajasthan!5e0!3m2!1sen!2sin!4v1683112345678!5m2!1sen!2sin" 
                         width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg) contrast(1.2);" 
@@ -716,32 +903,103 @@
 
     <!-- Cart Modal Box -->
     <div id="cartModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-900 border border-white/10 rounded-3xl w-full max-w-md mx-4 overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 flex flex-col max-h-[85vh]" id="cartModalContent">
+        <div class="bg-dark-900 border border-white/10 rounded-3xl w-full max-w-md mx-4 overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]" id="cartModalContent">
             
-            <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
-                <h3 class="text-2xl font-serif font-bold text-cream flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold">
-                        <i class="fas fa-shopping-cart text-lg"></i>
+            <!-- ====== CART VIEW ====== -->
+            <div id="cartView" class="flex flex-col h-full max-h-[90vh]">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/5 shrink-0">
+                    <h3 class="text-2xl font-serif font-bold text-cream flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold">
+                            <i class="fas fa-shopping-cart text-lg"></i>
+                        </div>
+                        <span data-en="Your Order" data-hi="आपका ऑर्डर">Your Order</span>
+                    </h3>
+                    <div class="flex items-center gap-3">
+                        <button onclick="clearCart()" class="text-xs font-bold text-accent hover:text-white bg-accent/10 hover:bg-accent/20 px-3 py-1.5 rounded-lg border border-accent/20 transition-colors uppercase tracking-widest" data-en="Clear All" data-hi="सब हटाएँ">Clear All</button>
+                        <button onclick="closeCart()" class="text-gray-400 hover:text-accent transition-colors text-xl w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full"><i class="fas fa-times"></i></button>
                     </div>
-                    <span data-en="Your Order" data-hi="आपका ऑर्डर">Your Order</span>
-                </h3>
-                <button onclick="closeCart()" class="text-gray-400 hover:text-accent transition-colors text-xl w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <!-- Cart Items List -->
-            <div class="p-5 overflow-y-auto flex-grow space-y-3 custom-scrollbar" id="cartItemsContainer">
-                <!-- Items injected via JS -->
-            </div>
-            
-            <!-- Checkout Footer -->
-            <div class="p-6 bg-dark-800 border-t border-white/5">
-                <div class="flex justify-between items-center mb-6 px-2">
-                    <span class="text-gray-400 font-bold uppercase tracking-widest text-xs" data-en="Total Amount" data-hi="कुल राशि">Total Amount</span>
-                    <span class="text-gold font-black text-3xl drop-shadow-md" id="cartModalTotal">₹0</span>
                 </div>
-                <button onclick="checkoutViaWhatsApp()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-lg hover:shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
-                    <i class="fab fa-whatsapp text-2xl"></i> <span data-en="Send Order on WhatsApp" data-hi="व्हाट्सएप पर ऑर्डर भेजें">Send Order on WhatsApp</span>
-                </button>
+                
+                <!-- Cart Items List -->
+                <div class="p-5 overflow-y-auto flex-grow space-y-3 custom-scrollbar" id="cartItemsContainer">
+                    <!-- Items injected via JS -->
+                </div>
+
+                <!-- Coupon Input Area -->
+                <div class="p-4 bg-dark-800/50 border-t border-white/5 shrink-0">
+                    <div class="flex gap-2">
+                        <input type="text" id="couponInput" onkeypress="if(event.key === 'Enter') applyCouponBtn(this.nextElementSibling)" placeholder="Coupon Code" class="flex-grow bg-dark-900 border border-white/10 rounded-xl px-4 py-3 text-cream font-bold uppercase focus:outline-none focus:border-gold/50 placeholder-gray-500 text-sm">
+                        <button onclick="applyCouponBtn(this)" class="bg-white/10 hover:bg-white/20 border border-white/10 text-cream px-5 py-3 rounded-xl text-sm font-bold transition-transform duration-150 transform" data-en="Apply" data-hi="लागू करें">Apply</button>
+                    </div>
+                    <div id="couponMessage" class="text-xs mt-2 hidden"></div>
+                </div>
+                
+                <!-- Checkout Footer -->
+                <div class="p-6 bg-dark-800 border-t border-white/5 shrink-0">
+                    <div id="discountRow" class="flex justify-between items-center mb-2 px-2 hidden">
+                        <span class="text-green-400 font-bold text-sm flex items-center gap-1"><i class="fas fa-tag"></i> <span data-en="Discount (RJ11)" data-hi="छूट (RJ11)">Discount (RJ11)</span></span>
+                        <span class="text-green-400 font-bold text-lg" id="cartModalDiscount">-₹0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <span class="text-gray-400 font-bold uppercase tracking-widest text-xs" data-en="Total Amount" data-hi="कुल राशि">Total Amount</span>
+                        <span class="text-gold font-black text-3xl drop-shadow-md" id="cartModalTotal">₹0</span>
+                    </div>
+                    <button onclick="proceedToCheckout()" class="w-full py-4 rounded-2xl bg-gold text-dark-900 font-bold text-lg hover:shadow-[0_10px_25px_rgba(245,158,11,0.4)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
+                        <span data-en="Proceed to Checkout" data-hi="चेकआउट के लिए आगे बढ़ें">Proceed to Checkout</span> <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ====== CHECKOUT VIEW ====== -->
+            <div id="checkoutView" class="hidden flex-col h-full max-h-[90vh]">
+                <!-- Header -->
+                <div class="p-6 border-b border-white/5 flex items-center gap-4 bg-white/5 shrink-0">
+                    <button onclick="backToCart()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 text-cream flex items-center justify-center transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h3 class="text-2xl font-serif font-bold text-cream" data-en="Delivery Details" data-hi="डिलीवरी विवरण">Delivery Details</h3>
+                </div>
+                
+                <!-- Form Body -->
+                <div class="p-6 flex-grow overflow-y-auto space-y-5 custom-scrollbar bg-dark-800">
+                    <div>
+                        <label class="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2" data-en="Your Name" data-hi="आपका नाम">Your Name</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-500"></i>
+                            </div>
+                            <input type="text" id="customerName" placeholder="Enter your full name" data-en="Enter your full name" data-hi="अपना पूरा नाम दर्ज करें" class="w-full bg-dark-900 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-cream focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 placeholder-gray-600 transition-all shadow-inner text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-2" data-en="Delivery Address" data-hi="डिलीवरी का पता">Delivery Address</label>
+                        <div class="relative">
+                            <div class="absolute top-4 left-0 pl-4 pointer-events-none">
+                                <i class="fas fa-map-marker-alt text-gray-500"></i>
+                            </div>
+                            <textarea id="customerAddress" placeholder="Complete address, or type 'Dine In' / 'Takeaway'" data-en="Complete address, or type 'Dine In' / 'Takeaway'" data-hi="पूरा पता, या 'डाइन इन' / 'टेकअवे' लिखें" rows="3" class="w-full bg-dark-900 border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-cream focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 placeholder-gray-600 resize-none transition-all shadow-inner text-sm"></textarea>
+                        </div>
+                        
+                        <!-- Delivery Notice -->
+                        <div class="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-xl flex gap-3 items-start shadow-inner">
+                            <i class="fas fa-info-circle text-red-400 mt-0.5"></i>
+                            <p class="text-xs text-gray-300 leading-relaxed" data-en="Note: Items are subject to availability. Delivery time may vary based on rider availability. Order cancellation is not permitted once placed." data-hi="नोट: आइटम उपलब्धता पर निर्भर हैं। राइडर की उपलब्धता के अनुसार डिलीवरी के समय में बदलाव हो सकता है। ऑर्डर देने के बाद रद्द करने की अनुमति नहीं है।">
+                                Note: Items are subject to availability. Delivery time may vary based on rider availability. Order cancellation is not permitted once placed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkout Final Footer -->
+                <div class="p-6 bg-dark-800 border-t border-white/5 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.3)]">
+                    <div class="flex justify-between items-center mb-6 px-2">
+                        <span class="text-gray-400 font-bold uppercase tracking-widest text-xs" data-en="Final Amount" data-hi="अंतिम राशि">Final Amount</span>
+                        <span class="text-gold font-black text-3xl drop-shadow-md" id="checkoutFinalTotal">₹0</span>
+                    </div>
+                    <button onclick="confirmOrderWhatsApp()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold text-lg hover:shadow-[0_10px_25px_rgba(37,211,102,0.4)] transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
+                        <i class="fab fa-whatsapp text-2xl"></i> <span data-en="Place Order" data-hi="ऑर्डर प्लेस करें">Place Order</span>
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -750,27 +1008,105 @@
 
     <!-- JavaScript for Interactions & Shopping Cart -->
     <script>
+        // --- Init LocalStorage Data ---
+        let cart = JSON.parse(localStorage.getItem('lastOptionCart')) || {};
+        let wishlist = JSON.parse(localStorage.getItem('lastOptionWishlist')) || [];
+        let appliedCoupon = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
+            updateWishlistUI();
+            
+            // Load saved customer info
+            const savedName = localStorage.getItem('lastOptionName');
+            const savedAddress = localStorage.getItem('lastOptionAddress');
+            if(savedName) document.getElementById('customerName').value = savedName;
+            if(savedAddress) document.getElementById('customerAddress').value = savedAddress;
+
+            // Show Coupon Popup after a few seconds
+            setTimeout(() => {
+                const popup = document.getElementById('couponPopup');
+                if(popup) popup.classList.remove('translate-y-20', 'opacity-0');
+            }, 3000);
+        });
+
         // --- Language Toggle Logic ---
         function toggleLanguage() {
             document.body.classList.toggle('lang-hi');
-            updateCartUI(); // Refresh cart names based on language
+            updateCartUI(); 
             
-            // Translate all elements with data-en/data-hi
             const isHindi = document.body.classList.contains('lang-hi');
             const elements = document.querySelectorAll('[data-en]');
             
             elements.forEach(el => {
                 if (isHindi && el.hasAttribute('data-hi')) {
-                    el.textContent = el.getAttribute('data-hi');
+                    if (el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') {
+                        el.placeholder = el.getAttribute('data-hi');
+                    } else {
+                        el.textContent = el.getAttribute('data-hi');
+                    }
                 } else {
-                    el.textContent = el.getAttribute('data-en');
+                    if (el.tagName.toLowerCase() === 'input' || el.tagName.toLowerCase() === 'textarea') {
+                        el.placeholder = el.getAttribute('data-en');
+                    } else {
+                        el.textContent = el.getAttribute('data-en');
+                    }
                 }
             });
         }
 
-        // --- Shopping Cart Logic ---
-        let cart = {};
+        // --- Wishlist Logic ---
+        function toggleWishlist(id) {
+            const index = wishlist.indexOf(id);
+            if (index > -1) {
+                wishlist.splice(index, 1);
+            } else {
+                wishlist.push(id);
+                const isHindi = document.body.classList.contains('lang-hi');
+                showToast(isHindi ? "पसंदीदा में जोड़ा गया!" : "Added to Wishlist!");
+            }
+            localStorage.setItem('lastOptionWishlist', JSON.stringify(wishlist));
+            updateWishlistUI();
+        }
 
+        function updateWishlistUI() {
+            document.querySelectorAll('.wishlist-btn').forEach(btn => {
+                const id = btn.getAttribute('data-id');
+                const icon = btn.querySelector('i');
+                if (wishlist.includes(id)) {
+                    icon.className = 'fas fa-heart text-accent drop-shadow-[0_0_5px_rgba(225,29,72,0.5)]';
+                } else {
+                    icon.className = 'far fa-heart';
+                }
+            });
+        }
+
+        // --- Search / Filter Logic ---
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.item-row');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Hide category card if all items are hidden
+            document.querySelectorAll('.category-card').forEach(card => {
+                const visibleItems = card.querySelectorAll('.item-row[style="display: flex;"], .item-row:not([style*="display: none"])');
+                if (visibleItems.length === 0) {
+                    card.style.display = 'none';
+                } else {
+                    card.style.display = 'flex';
+                }
+            });
+        });
+
+        // --- Shopping Cart & Coupon Logic ---
         function addToCart(id, nameEn, nameHi, price) {
             if(cart[id]) {
                 cart[id].quantity += 1;
@@ -793,6 +1129,57 @@
             }
         }
 
+        function clearCart() {
+            if(Object.keys(cart).length === 0) return;
+            cart = {};
+            appliedCoupon = null;
+            document.getElementById('couponInput').value = '';
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerAddress').value = '';
+            updateCartUI();
+            
+            const isHindi = document.body.classList.contains('lang-hi');
+            showToast(isHindi ? "कार्ट खाली कर दिया गया है!" : "Cart cleared successfully!");
+        }
+
+        function applyCouponBtn(btnElement) {
+            // Visual click feedback on the button
+            if (btnElement && btnElement.style) {
+                btnElement.style.transform = 'scale(0.9)';
+                setTimeout(() => btnElement.style.transform = 'scale(1)', 150);
+            }
+
+            const inputVal = document.getElementById('couponInput').value.trim().toUpperCase();
+            
+            if (inputVal === '') {
+                appliedCoupon = null;
+            } else {
+                // Store exactly what they typed. Verification happens in updateCartUI
+                appliedCoupon = inputVal; 
+            }
+            updateCartUI();
+        }
+
+        function closeCouponPopup() {
+            const popup = document.getElementById('couponPopup');
+            popup.classList.add('translate-y-20', 'opacity-0');
+            setTimeout(() => popup.classList.add('hidden'), 500);
+        }
+
+        function copyCoupon() {
+            navigator.clipboard.writeText('RJ11').then(() => {
+                showToast('Coupon Copied! Apply in Cart.');
+            }).catch(() => {
+                const el = document.createElement('textarea');
+                el.value = 'RJ11';
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                showToast('Coupon Copied! Apply in Cart.');
+            });
+        }
+
         function updateCartUI() {
             const container = document.getElementById('cartItemsContainer');
             const floatingTotal = document.getElementById('floatingCartTotal');
@@ -800,8 +1187,10 @@
             const badgeCount = document.getElementById('cartBadgeCount');
             const floatingCart = document.getElementById('floatingCart');
             const isHindi = document.body.classList.contains('lang-hi');
+            const msgEl = document.getElementById('couponMessage');
 
             let total = 0;
+            let eligibleForCoupon = 0;
             let itemCount = 0;
             container.innerHTML = '';
 
@@ -810,6 +1199,11 @@
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
                 itemCount += item.quantity;
+                
+                // Exclude beverages from RJ11 coupon
+                if (!id.startsWith('coffee_') && !id.startsWith('cc_') && !id.startsWith('chai_')) {
+                    eligibleForCoupon += itemTotal;
+                }
                 
                 const displayName = isHindi ? item.nameHi : item.nameEn;
 
@@ -831,14 +1225,51 @@
                 `;
             }
 
-            floatingTotal.textContent = `₹${total}`;
-            modalTotal.textContent = `₹${total}`;
+            // Apply Coupon logic
+            let discount = 0;
+            if (appliedCoupon === 'RJ11') {
+                if (eligibleForCoupon >= 300) {
+                    discount = eligibleForCoupon * 0.05; // 5% discount
+                    msgEl.textContent = isHindi ? 'RJ11 लागू: 5% फ़ूड/शेक छूट!' : 'RJ11 Applied: 5% off on Food/Shakes!';
+                    msgEl.className = 'text-xs mt-2 text-green-400 block font-bold animate-pulse-fast';
+                    document.getElementById('couponInput').value = 'RJ11';
+                } else {
+                    // Do NOT reset appliedCoupon here! Keep it saved so it works when they add more items.
+                    msgEl.textContent = isHindi ? '₹300+ का फ़ूड/शेक जोड़ें' : 'Add Food/Shakes worth ₹300+ to use RJ11.';
+                    msgEl.className = 'text-xs mt-2 text-accent block font-bold animate-pulse-fast';
+                }
+            } else if (appliedCoupon !== null && appliedCoupon !== '') {
+                msgEl.textContent = isHindi ? 'अमान्य कूपन कोड।' : 'Invalid coupon code.';
+                msgEl.className = 'text-xs mt-2 text-accent block font-bold animate-pulse-fast';
+            } else {
+                msgEl.className = 'hidden';
+            }
+
+            const finalTotal = Math.max(0, total - discount);
+
+            floatingTotal.textContent = `₹${Math.round(finalTotal)}`;
+            modalTotal.textContent = `₹${Math.round(finalTotal)}`;
+            document.getElementById('checkoutFinalTotal').textContent = `₹${Math.round(finalTotal)}`;
             badgeCount.textContent = itemCount;
+            
+            // Toggle Discount Row
+            if (discount > 0) {
+                document.getElementById('discountRow').classList.remove('hidden');
+                document.getElementById('cartModalDiscount').textContent = `-₹${Math.round(discount)}`;
+            } else {
+                document.getElementById('discountRow').classList.add('hidden');
+            }
+
+            // Save Cart State
+            localStorage.setItem('lastOptionCart', JSON.stringify(cart));
 
             if(itemCount > 0) {
                 floatingCart.classList.remove('hidden');
             } else {
                 floatingCart.classList.add('hidden');
+                appliedCoupon = null; // reset if empty
+                document.getElementById('couponInput').value = '';
+                msgEl.className = 'hidden';
                 
                 const emptyMsgEn = "Your cart is empty.";
                 const emptyMsgHi = "आपका कार्ट खाली है।";
@@ -860,6 +1291,13 @@
             const modal = document.getElementById('cartModal');
             const content = document.getElementById('cartModalContent');
             updateCartUI(); 
+            
+            // Reset to Cart View
+            document.getElementById('checkoutView').classList.add('hidden');
+            document.getElementById('checkoutView').classList.remove('flex');
+            document.getElementById('cartView').classList.remove('hidden');
+            document.getElementById('cartView').classList.add('flex');
+
             modal.classList.remove('hidden');
             void modal.offsetWidth;
             modal.classList.remove('opacity-0');
@@ -874,27 +1312,79 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        function checkoutViaWhatsApp() {
+        function proceedToCheckout() {
             if(Object.keys(cart).length === 0) return;
+            document.getElementById('cartView').classList.add('hidden');
+            document.getElementById('cartView').classList.remove('flex');
+            document.getElementById('checkoutView').classList.remove('hidden');
+            document.getElementById('checkoutView').classList.add('flex');
+        }
+
+        function backToCart() {
+            document.getElementById('checkoutView').classList.add('hidden');
+            document.getElementById('checkoutView').classList.remove('flex');
+            document.getElementById('cartView').classList.remove('hidden');
+            document.getElementById('cartView').classList.add('flex');
+        }
+
+        function confirmOrderWhatsApp() {
+            if(Object.keys(cart).length === 0) return;
+            
+            const custName = document.getElementById('customerName').value.trim();
+            const custAddress = document.getElementById('customerAddress').value.trim();
             const isHindi = document.body.classList.contains('lang-hi');
 
+            if (!custName || !custAddress) {
+                showToast(isHindi ? "कृपया अपना नाम और पता दर्ज करें!" : "Please enter your Name and Address!");
+                
+                // Highlight missing fields
+                if (!custName) document.getElementById('customerName').classList.add('border-accent');
+                if (!custAddress) document.getElementById('customerAddress').classList.add('border-accent');
+                
+                setTimeout(() => {
+                    document.getElementById('customerName').classList.remove('border-accent');
+                    document.getElementById('customerAddress').classList.remove('border-accent');
+                }, 2000);
+                return;
+            }
+
+            // Save details for next time
+            localStorage.setItem('lastOptionName', custName);
+            localStorage.setItem('lastOptionAddress', custAddress);
+
             let message = isHindi 
-                ? "नमस्ते 'द लास्ट ऑप्शन'! मैं एक ऑर्डर देना चाहता हूँ:\n\n"
-                : "Hi The Last Option! I'd like to place an order:\n\n";
+                ? `नमस्ते 'द लास्ट ऑप्शन'! मैं एक ऑर्डर देना चाहता हूँ:\n\n*नाम:* ${custName}\n*पता:* ${custAddress}\n\n*ऑर्डर विवरण:*\n`
+                : `Hi The Last Option! I'd like to place an order:\n\n*Name:* ${custName}\n*Address:* ${custAddress}\n\n*Order Details:*\n`;
+            
             let total = 0;
+            let eligibleForCoupon = 0;
 
             for(const id in cart) {
                 const item = cart[id];
                 const itemTotal = item.price * item.quantity;
                 total += itemTotal;
+                
+                if (!id.startsWith('coffee_') && !id.startsWith('cc_') && !id.startsWith('chai_')) {
+                    eligibleForCoupon += itemTotal;
+                }
+                
                 const nameToUse = isHindi ? item.nameHi : item.nameEn;
                 message += `▪️ ${item.quantity}x ${nameToUse} - ₹${itemTotal}\n`;
             }
 
+            let discount = 0;
+            if (appliedCoupon === 'RJ11' && eligibleForCoupon >= 300) {
+                discount = eligibleForCoupon * 0.05;
+                const subText = isHindi ? "*उप-योग*" : "*Subtotal*";
+                const discText = isHindi ? "*छूट (RJ11)*" : "*Discount (RJ11)*";
+                message += `\n${subText}: ₹${total}\n${discText}: -₹${Math.round(discount)}`;
+            }
+
+            const finalTotal = Math.round(Math.max(0, total - discount));
             const totalText = isHindi ? "*कुल राशि*" : "*Total Amount*";
             const confirmText = isHindi ? "कृपया मेरे ऑर्डर की पुष्टि करें!" : "Please confirm my order!";
 
-            message += `\n${totalText}: ₹${total}\n\n${confirmText}`;
+            message += `\n\n${totalText}: ₹${finalTotal}\n\n${confirmText}`;
             
             window.open(`https://wa.me/916375965153?text=${encodeURIComponent(message)}`, '_blank');
             closeCart();
